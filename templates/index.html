@@ -1,0 +1,203 @@
+{% load static %}
+
+<!doctype html>
+<html>
+
+<head>
+    <title>{% block title %}FAREC[NO]{% endblock %}</title>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="{% static 'css/frame.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/controls.css' %}" media="screen" rel="stylesheet" type="text/css" />
+    <link href="{% static 'css/custom.css' %}" media="screen" rel="stylesheet" type="text/css" />
+
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static '/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static '/favicon-16x16.png' %}">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+
+    <script>
+        ACCESS_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+        MB_ATTR = 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
+        MB_URL = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + ACCESS_TOKEN;
+        OSM_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        OSM_ATTRIB = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+    </script>
+
+    <style>
+        .menu-index {
+            color: rgb(255, 255, 255) !important;
+            opacity: 1 !important;
+            font-weight: 700 !important;
+        }
+    </style>
+
+
+
+</head>
+
+<body>
+    <div class="menu-container">
+        <div class="menu">
+            <div class="menu-table flex-row-space-between">
+                <div class="logo flex-row-center">
+                    <a>Find A Real Estate Company</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="content-container">
+        <div class="content">
+            <div class="content-table flex-column">
+                <!-------------------------------------------------------------------------------------------->
+                <!--Start Text Only-->
+                <div class="flex-row">
+                    <div class="flex-item flex-column">
+                        <h2 class="add-top-margin">Information</h2>
+                        <hr>
+                        <p class="text">
+                            Welcome to this simple application, which finds the best real estate company for you,
+                            depending on whether you want to buy or sell. The application is based on a collection of
+                            around 25&rsquo;000 properties scattered in the period May 2019 to June 2020.
+                            For now, only Norwegian properties and companies are considered, and will most likely not be
+                            added to
+                            later on... It is important to note that this application is just for fun, and does not
+                            necessarily represent reality. Especially, some companies are very underrepresented in
+                            certain areas, and the time period is too short.
+                        </p>
+                        <h3>BUY</h3>
+                        <p class="text">
+                            When you want to buy a property, you want it to be cheap. Which means that a good real
+                            estate
+                            company sells a property close to the listing price.
+                        </p>
+                        <h3>SELL</h3>
+                        <p class="text">
+                            This is opposite, when you sell you want to get more than the asking price for the property.
+                            This setting tries to find real estate companies with properties that sell for more than the
+                            listing price. Use the search field to search for cities or postal
+                            codes or click on the map to get an overview of properties sold in a set radius.
+                        </p>
+                    </div>
+                </div>
+                <!--End Text Only-->
+
+                <div class="flex-row">
+                    <div class="flex-item flex-item-stretch flex-column">
+                        <h2 class="add-top-margin">Search</h2>
+                        <hr>
+
+                        <label class="switch">
+                            <input class="switch-input" type="checkbox" />
+                            <span class="switch-label" data-on="BUY" data-off="SELL"></span>
+                            <span class="switch-handle"></span>
+                        </label>
+
+                        <form id="searchform" method="post">
+                            <div class="search">
+                                <input type="text" name="searchterm" class="searchTerm"
+                                    placeholder="Search for a place...">
+                                <button type="submit" class="custom-button-flat">
+                                    <img src="{% static 'img/play.png' %}">
+                                </button>
+                            </div>
+                            <form>
+                    </div>
+                </div>
+
+                <!-------------------------------------------------------------------------------------------->
+                <!--Start Text with Iframe-->
+                <div class="flex-row">
+                    <div class="flex-item flex-column">
+                        <h2 class="add-top-margin">Map</h2>
+                        <hr>
+                        <p class="text">
+                            Use the search field to search for cities or postal codes or click on the map to get an
+                            overview of properties sold in a set radius
+                        </p>
+
+                        <div class="range-slider">
+                            <input class="range-slider__range" id="radiusslider" type="range" value="20" min="0"
+                                max="120">
+                            <span class="range-slider__value">20</span>
+                        </div>
+
+
+                        <div class="iframe-in-body" id="map"></div>
+
+
+                    </div>
+                </div>
+                <!--END Text with Iframe-->
+                <!-------------------------------------------------------------------------------------------->
+
+                <div class="flex-row">
+                    <div class="flex-item flex-column">
+                        <h2 class="add-top-margin">Results</h2>
+                        <hr>
+                        <div class="custom-table-container center add-top-margin-small">
+                            <table class="custom-table rwd-table">
+                                <thead>
+                                    <tr class="bg-color-gray">
+                                        <th>Rank</th>
+                                        <th>Company name</th>
+                                        <th>Sold objects</th>
+                                        <th>Average price</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!--Start Credits-->
+                <div class="flex-row">
+                    <div class="flex-item flex-column">
+                        <hr>
+                        <p class="text text-italic" style="white-space: nowrap;">
+                            <br /> <span class="highlight-text">Credits:</span> HTML/CSS - Yen-Chia Hsu <a
+                                target="_blank" href="https://github.com/yenchiah/project-website-template">GITHUB</a>
+                        </p>
+                        <p class="text text-italic" style="white-space: nowrap;">
+                            <span class="highlight-text">Author:</span>Magnus L. Lilja <a target="_blank"
+                                href="mailto:stoneswine@pm.me">Contact me</a>
+                        </p>
+                    </div>
+                </div>
+                <!--End Credits-->
+                <!-------------------------------------------------------------------------------------------->
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    var circle;
+    var lat;
+    var long;
+    var token = '{{csrf_token}}';
+    var radius;
+    var search = 0;
+    var searchurl = "{% url 'search' %}"
+    var geosearchurl = "{% url 'geosearch' %}";
+</script>
+
+<script src="{% static 'js/index.js' %}"></script>
+
+
+</html>
