@@ -4,4 +4,4 @@ This project is buildt on that thought, and is a result of datacollection from o
 
 ![Website layout](farec.png)
 
-The project is deployed on azure
+The project is deployed on azure and is using django as a backend framework.
