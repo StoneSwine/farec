@@ -16,15 +16,14 @@ import json
 
 @receiver(connection_created)
 def extend_sqlite(connection=None, **kwargs):
-    # Add math functions ?
-    # connection.connection.create_function('acos', 1, math.acos)
-    # connection.connection.create_function('cos', 1, math.cos)
-    # connection.connection.create_function('radians', 1, math.radians)
-    # connection.connection.create_function('sin', 1, math.sin)
-    # connection.connection.create_function('least', 2, max)
-    # connection.connection.create_function('greatest', 2, min)
-    pass
-
+    if connection.vendor == "sqlite":
+        # sqlite doesn't natively support math functions, so add them
+        connection.connection.create_function('acos', 1, math.acos)
+        connection.connection.create_function('cos', 1, math.cos)
+        connection.connection.create_function('radians', 1, math.radians)
+        connection.connection.create_function('sin', 1, math.sin)
+        connection.connection.create_function('least', 2, max)
+        connection.connection.create_function('greatest', 2, min)
 
 # https://stackoverflow.com/questions/19703975/django-sort-by-distance
 def get_locations_nearby_coords(latitude, longitude, max_distance):
