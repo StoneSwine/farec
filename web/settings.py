@@ -104,17 +104,23 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static and Media Files
-
-DEFAULT_FILE_STORAGE = STATICFILES_STORAGE = 'index.backend.AzureStaticStorage'
+# Static files
+if "AZURE_STORAGE_KEY" in os.environ:
+    DEFAULT_FILE_STORAGE = STATICFILES_STORAGE = 'index.backend.AzureStaticStorage'
 
 AZURE_STORAGE_KEY = os.getenv('AZURE_STORAGE_KEY', False)
 AZURE_ACCOUNT_NAME = "farecstatic"  # your account name
 AZURE_STATIC_CONTAINER = os.getenv('AZURE_STATIC_CONTAINER', 'static')
-
 AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'  # CDN URL
 
-STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_STATIC_CONTAINER}/'
+if "AZURE_STORAGE_KEY" in os.environ:
+    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{AZURE_STATIC_CONTAINER}/'
+else: 
+    STATIC_URL = "/static/"
+    STATICFILES_FINDERS = (
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [

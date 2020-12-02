@@ -2,6 +2,7 @@
 **/.idea/*
 **/sql_tmp/*
 Dockerfile*
+**/staticfiles/*
 Dockerfile
 docker-compose.yml
 **/__pycache__/*

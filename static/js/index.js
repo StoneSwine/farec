@@ -152,6 +152,7 @@ map.on("click", e => {
             action: action,
         }, geosearchurl)) {
         search = 0;
+        document.getElementById('resulttable').scrollIntoView();
     }
 });
 
@@ -170,6 +171,7 @@ $(document).ready(function() {
             }, searchurl)) {
             search = 1;
             removeCircle();
+            document.getElementById('resulttable').scrollIntoView();
         }
 
     });
