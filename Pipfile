@@ -9,7 +9,6 @@ django-storages = {extras = ["azure"], version = "*"}
 psycopg2-binary = "*"
 uvicorn = "*"
 django-htmlmin = "*"
-applicationinsights = "*"
 
 [dev-packages]
 

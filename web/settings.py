@@ -14,8 +14,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-
 SECRET_KEY = os.getenv('SECRET_KEY', 'a^ndivwn2c$tdb+by=c=_p&p(eiua4@v7j(=qfu^8^lyyuolhi')
 DEBUG = os.getenv('DEBUG', "false").lower() == "true"
 ALLOWED_HOSTS = [os.getenv('DJANGO_HOST', 'localhost')]
@@ -77,42 +75,42 @@ WSGI_APPLICATION = 'web.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 
-if 'DJANGO_DATABASE_PASSWORD' in os.environ.keys():
-    # Staging or production database
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ['DJANGO_DATABASE_NAME'],
-            'USER': os.environ['DJANGO_DATABASE_USER'],
-            'PASSWORD': os.environ['DJANGO_DATABASE_PASSWORD'],
-            'HOST': os.environ['DJANGO_DATABASE_SERVER'],
-            'PORT': '5432',
-            'OPTIONS': {
-                'sslmode': 'require',
-            },
-        }
-    }
+# if 'DJANGO_DATABASE_PASSWORD' in os.environ.keys():
+#     # Staging or production database
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': os.environ['DJANGO_DATABASE_NAME'],
+#             'USER': os.environ['DJANGO_DATABASE_USER'],
+#             'PASSWORD': os.environ['DJANGO_DATABASE_PASSWORD'],
+#             'HOST': os.environ['DJANGO_DATABASE_SERVER'],
+#             'PORT': '5432',
+#             'OPTIONS': {
+#                 'sslmode': 'require',
+#             },
+#         }
+#     }
 
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-            'LOCATION': 'cache_table',
-        }
-    }
+#     CACHES = {
+#         'default': {
+#             'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#             'LOCATION': 'cache_table',
+#         }
+#     }
 
-else:
+# else:
     # development database
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'results.sqlite'),
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'results.sqlite'),
     }
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
+}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#     }
+# }
 
 
 # Password validation
@@ -159,30 +157,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
-
-# APPLICATION_INSIGHTS = {
-#     # Your Application Insights instrumentation key
-#     'ikey': os.getenv('INSIGHTS_KEY', "00000000-0000-0000-0000-000000000000"),
-#     'use_view_name': True,
-#     'record_view_arguments': True,
-# }
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         # The application insights handler is here
-#         'appinsights': {
-#             'class': 'applicationinsights.django.LoggingHandler',
-#             'level': 'WARNING'
-#         }
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['appinsights'],
-#             'level': 'WARNING',
-#             'propagate': True,
-#         }
-#     }
-# }
 
 HTML_MINIFY = True
