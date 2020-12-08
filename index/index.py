@@ -82,7 +82,7 @@ def search(request):
         if not res.exists():
             res = item.objects.all().select_related().exclude(soldprice__isnull=True).values("broker__company",
                                                                                              ).filter(
-                place__postalcode__contains=req_input).annotate(
+                place__postalcode__contains=req_input.lstrip('0')).annotate(
                 soldno=Count('broker__company')).annotate(avglistprice=Avg("listprice")).annotate(score=ExpressionWrapper(
                     (Count(F('broker__company'))) * (
                         (Avg(F("soldprice"), output_field=FloatField())) - (Avg(F("listprice"), output_field=FloatField()))),
