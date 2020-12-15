@@ -59,39 +59,39 @@ def index(request):
 # Get the searchfilters and return the correct stuff
 def search(request):
     reqvals = ["action", "input"]
+    res = None 
+    orderby = 'score'
     if request.method == "POST" and request.is_ajax() and all(x in request.POST for x in reqvals):
 
         req_action = request.POST.get("action")
         req_input = request.POST.get("input")
         if not req_input.strip():
             return JsonResponse({"success": False}, status=400)
+
         try:
             orderby = '-score' if int(req_action) == 0 else 'score'
             # Get the current areas nearby the selected location and the radius
-        except ValueError:
-            return JsonResponse({"success": False}, status=400)
+            postalcode = int(req_input)
 
-        res = item.objects.all().select_related().exclude(soldprice__isnull=True).values("broker__company",
-                                                                                         ).filter(
-            place__name__contains=req_input).annotate(
-            soldno=Count('broker__company')).annotate(avglistprice=Avg("listprice")).annotate(score=ExpressionWrapper(
-                (Count(F('broker__company'))) * (
-                    (Avg(F("soldprice"), output_field=FloatField())) - (Avg(F("listprice"), output_field=FloatField()))),
-                output_field=FloatField())).order_by(orderby)[:15]
-
-        if not res.exists():
             res = item.objects.all().select_related().exclude(soldprice__isnull=True).values("broker__company",
                                                                                              ).filter(
-                place__postalcode__contains=req_input.lstrip('0')).annotate(
+                place__postalcode__exact=postalcode).annotate(
                 soldno=Count('broker__company')).annotate(avglistprice=Avg("listprice")).annotate(score=ExpressionWrapper(
                     (Count(F('broker__company'))) * (
                         (Avg(F("soldprice"), output_field=FloatField())) - (Avg(F("listprice"), output_field=FloatField()))),
                     output_field=FloatField())).order_by(orderby)[:15]
 
+        except ValueError:
+            res = item.objects.all().select_related().exclude(soldprice__isnull=True).values("broker__company",
+                                                                                            ).filter(
+                place__name__contains=req_input).annotate(
+                soldno=Count('broker__company')).annotate(avglistprice=Avg("listprice")).annotate(score=ExpressionWrapper(
+                    (Count(F('broker__company'))) * (
+                        (Avg(F("soldprice"), output_field=FloatField())) - (Avg(F("listprice"), output_field=FloatField()))),
+                    output_field=FloatField())).order_by(orderby)[:15]
+                
         data = json.dumps(list(res), cls=DjangoJSONEncoder)
-
         return HttpResponse(data, content_type='application/json')
-
     return JsonResponse({"success": False}, status=400)
 
 
