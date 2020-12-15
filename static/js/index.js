@@ -1,3 +1,10 @@
+function clearTable(tab, hook) {
+    tab.style.display = "";
+    while (hook.firstChild) {
+        hook.removeChild(hook.firstChild);
+    }
+}
+
 function createTableFromResults(response) {
 
     let length = Object.keys(response).length;
@@ -5,10 +12,7 @@ function createTableFromResults(response) {
         var hook = document.querySelector(".custom-table-container tbody"),
             currenttable = document.querySelector(".custom-table-container");
 
-        currenttable.style.display = "";
-        while (hook.firstChild) {
-            hook.removeChild(hook.firstChild);
-        }
+        clearTable(currenttable, hook);
 
         var count = 1;
         for (var i = 0; i < Object.keys(response).length; i++) {
@@ -96,25 +100,28 @@ function addCircle() {
 }
 
 
-
-
 function handleRequest(postdata, url) {
-    $.ajax({
-        type: 'POST',
-        headers: {
-            "X-CSRFToken": token
-        },
-        url: url,
-        data: postdata,
-        success: function(response) {
-            createTableFromResults(response);
-            return 0;
-        },
-        error: function(response) {
-            console.log(response);
-            return -1;
-        }
-    });
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: 'POST',
+            headers: {
+                "X-CSRFToken": token
+            },
+            url: url,
+            data: postdata,
+            success: function(response) {
+                if (response.length) {
+                    createTableFromResults(response);
+                    resolve(0);
+                } else {
+                    reject(1);
+                }
+            },
+            error: function(response) {
+                reject(2);
+            }
+        });
+    })
 }
 
 var osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -139,21 +146,29 @@ map.on("click", e => {
     radius = document.getElementById('radiusslider').value;
     let action = document.getElementsByClassName("switch-input")[0].checked ? 1 : 0
 
-    console.log(action)
-
     //Remove the previous circle and create a new one
     removeCircle();
     addCircle();
 
-    if (!handleRequest({
+    handleRequest({
             lat: lat,
             long: long,
             radius: radius,
             action: action,
-        }, geosearchurl)) {
-        search = 0;
-        document.getElementById('resulttable').scrollIntoView();
-    }
+        }, geosearchurl)
+        .then(function() { // Resolve
+            search = 0;
+            document.getElementById('resulttable').scrollIntoView();
+        }).catch(function(msg) { // Reject!
+            if (msg === 1) {
+                clearTable(document.querySelector(".custom-table-container"), document.querySelector(".custom-table-container tbody"));
+                $("#map").addClass("pulse-danger");
+                setTimeout(function() {
+                    $("#map").removeClass('pulse-danger');
+                }, 3000);
+            }
+        });
+
 });
 
 
@@ -163,16 +178,32 @@ $(document).ready(function() {
         e.preventDefault();
         let action = document.getElementsByClassName("switch-input")[0].checked ? 1 : 0;
         var serializedData = new FormData(e.target).get("searchterm");
-        console.log(serializedData);
 
-        if (!handleRequest({
+        // if (!handleRequest({
+        //         input: serializedData,
+        //         action: action,
+        //     }, searchurl)) {
+        //     search = 1;
+
+        //     document.getElementById('resulttable').scrollIntoView();
+        // }
+        handleRequest({
                 input: serializedData,
                 action: action,
-            }, searchurl)) {
-            search = 1;
-            removeCircle();
-            document.getElementById('resulttable').scrollIntoView();
-        }
+            }, searchurl)
+            .then(function() { // Resolve
+                search = 1;
+                removeCircle();
+                document.getElementById('resulttable').scrollIntoView();
+            }).catch(function(msg) { // Reject!
+                if (msg === 1) {
+                    clearTable(document.querySelector(".custom-table-container"), document.querySelector(".custom-table-container tbody"));
+                    $("#searchform").addClass("pulse-danger");
+                    setTimeout(function() {
+                        $("#searchform").removeClass('pulse-danger');
+                    }, 3000);
+                }
+            });
 
     });
 });
@@ -195,6 +226,25 @@ $(document).ready(function() {
                 }, geosearchurl)) {
                 search = 0;
             }
+
+            handleRequest({
+                    lat: lat,
+                    long: long,
+                    radius: radius,
+                    action: action,
+                }, geosearchurl)
+                .then(function() { // Resolve
+                    search = 0;
+                }).catch(function(msg) { // Reject!
+                    if (msg === 1) {
+                        clearTable(document.querySelector(".custom-table-container"), document.querySelector(".custom-table-container tbody"));
+                        $("#map").addClass("pulse-danger");
+                        setTimeout(function() {
+                            $("#map").removeClass('pulse-danger');
+                        }, 3000);
+                    }
+                });
+
         }
     });
 });
@@ -202,13 +252,10 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     $(".switch-input").click(function(e) {
-        console.log("Switch changed");
         var postdata, url;
         let action = document.getElementsByClassName("switch-input")[0].checked ? 1 : 0;
         var serializedData = document.getElementsByName("searchterm")[0].value;
-        console.log(serializedData);
         if (lat && long && !search) {
-            console.log("latlong defined");
             postdata = {
                 lat: lat,
                 long: long,
@@ -218,7 +265,6 @@ $(document).ready(function() {
             url = geosearchurl;
 
         } else if (serializedData && search) {
-            console.log("searchterm defined");
             postdata = {
                 input: serializedData,
                 action: action
@@ -229,11 +275,9 @@ $(document).ready(function() {
             return 1;
 
         }
+        handleRequest(postdata, url).then(function() { // Resolve
+        }).catch(function(msg) { // Reject!
 
-        console.log(postdata);
-
-
-        handleRequest(postdata, url);
-
+        });
     });
 });
